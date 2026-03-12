@@ -16,6 +16,9 @@ import axios from "axios";
 import { setAddress, setLocation } from "../redux/mapSlice";
 import { useState } from "react";
 import { useEffect } from "react";
+import { serverUrl } from "../App";
+
+
 
 
 
@@ -75,6 +78,81 @@ function CheckOut() {
       console.error("Error fetching lat/lng:", error);
     }
   }
+
+  // const handlePlaceOrder = async () => {
+  //   try {
+  //     const result = await axios.post(`${serverUrl}/api/order/place-order`,{
+  //       paymentMethod,
+  //       deliveryAddress:{
+  //         text: addressInput,
+  //         latitude: location.lat,
+  //         longitude: location.lon
+  //       },
+  //       totalAmount: AmountWithDeliveryFee,
+  //       cartItems,
+  //     },{withCredentials:true});
+  //     console.log("Order placed successfully:", result.data);
+  //   } catch (error) {
+  //     console.error("Error placing order:", error);
+      
+  //   }
+  // }
+  const handlePlaceOrder = async () => {
+
+  // safety check
+  if(!location?.lat || !location?.lon){
+    alert("Please select delivery location");
+    return;
+  }
+
+  if(cartItems.length === 0){
+    alert("Cart is empty");
+    return;
+  }
+
+  try {
+
+    console.log("ORDER DATA:", {
+      paymentMethod,
+      deliveryAddress:{
+        text: addressInput,
+        latitude: location.lat,
+        longitude: location.lon
+      },
+      totalAmount: AmountWithDeliveryFee,
+      cartItems
+    });
+
+    const result = await axios.post(
+      `${serverUrl}/api/order/place-order`,
+      {
+        paymentMethod,
+        deliveryAddress:{
+          text: addressInput,
+          latitude: location.lat,
+          longitude: location.lon
+        },
+        totalAmount: AmountWithDeliveryFee,
+        cartItems
+      },
+      { withCredentials: true }
+    );
+
+    console.log("Order placed successfully:", result.data);
+
+    alert("Order placed successfully ✅");
+
+    navigate("/orders"); // optional redirect
+
+  } catch (error) {
+
+    console.error("ORDER ERROR:", error.response?.data || error);
+
+    alert(
+      error.response?.data?.message || "Something went wrong while placing order"
+    );
+  }
+};
 
   useEffect(() => {
     setAddressInput(address);
@@ -162,7 +240,7 @@ function CheckOut() {
         </section>
         {/* Place Order Button */}
         <section className="mt-4">
-          <button className="w-full bg-[#ff4d2d] hover:bg-[#e64526] text-white py-3 rounded-xl font-semibold cursor-pointer">{paymentMethod == "cod" ? "Place Order" : "Pay & Place Order"}</button>
+          <button className="w-full bg-[#ff4d2d] hover:bg-[#e64526] text-white py-3 rounded-xl font-semibold cursor-pointer" onClick={handlePlaceOrder}>{paymentMethod == "cod" ? "Place Order" : "Pay & Place Order"}</button>
         </section>
       </div>
     </div>

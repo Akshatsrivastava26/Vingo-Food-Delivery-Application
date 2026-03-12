@@ -11,6 +11,7 @@ import AddItem from "./pages/AddItem";
 import EditItem from "./pages/EditItem";
 import CartPage from "./pages/CartPage";
 import CheckOut from "./pages/CheckOut";
+import Orders from "./pages/Orders.jsx";
 import Nav from "./components/Nav";
 
 
@@ -80,7 +81,12 @@ function App() {
         path="/checkout"
         element={userData ? <CheckOut /> : <Navigate to="/signin" />}
       />
+      <Route
+        path="/orders"
+        element={userData ? <Orders /> : <Navigate to="/signin" />}
+      />
     </Routes>
+
 
   );
 }
