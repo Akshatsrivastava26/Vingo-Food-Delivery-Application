@@ -21,6 +21,7 @@ import useGetCity from "./hooks/useGetCity";
 import useGetMyShop from "./hooks/useGetMyShop";
 import useGetShopByCity from "./hooks/useGetShopByCity";
 import useGetItemsByCity from "./hooks/useGetItemsByCity";
+import useGetMyOrders from "./hooks/useGetMyOrders";
 
 
 export const serverUrl = import.meta.env.VITE_BACKEND_URL;
@@ -31,6 +32,7 @@ function App() {
   useGetMyShop();
   useGetShopByCity();
   useGetItemsByCity();
+  useGetMyOrders();
   const { userData } = useSelector((state) => state.user);
 
   if (loading) {
