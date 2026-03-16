@@ -79,24 +79,6 @@ function CheckOut() {
     }
   }
 
-  // const handlePlaceOrder = async () => {
-  //   try {
-  //     const result = await axios.post(`${serverUrl}/api/order/place-order`,{
-  //       paymentMethod,
-  //       deliveryAddress:{
-  //         text: addressInput,
-  //         latitude: location.lat,
-  //         longitude: location.lon
-  //       },
-  //       totalAmount: AmountWithDeliveryFee,
-  //       cartItems,
-  //     },{withCredentials:true});
-  //     console.log("Order placed successfully:", result.data);
-  //   } catch (error) {
-  //     console.error("Error placing order:", error);
-      
-  //   }
-  // }
   const handlePlaceOrder = async () => {
 
   // safety check
@@ -158,7 +140,7 @@ function CheckOut() {
 
   return (
     <div className="min-h-screen bg-[#fff9f6] flex item-center justify-center p-6">
-      <div className="absolute top-[20px] left-[20px] z-[10] cursor-pointer" onClick={() => navigate("/")}>
+      <div className="absolute top-5 left-5 z-10 cursor-pointer" onClick={() => navigate("/")}>
         <IoIosArrowRoundBack size={35} className="text-[#ff4d2d]" />
       </div>
       <div className="w-full max-w-[900px] bg-white rounded-2xl shadow-xl p-6 space-y-6">
