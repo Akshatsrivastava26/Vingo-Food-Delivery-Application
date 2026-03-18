@@ -22,29 +22,32 @@ import useGetMyShop from "./hooks/useGetMyShop";
 import useGetShopByCity from "./hooks/useGetShopByCity";
 import useGetItemsByCity from "./hooks/useGetItemsByCity";
 import useGetMyOrders from "./hooks/useGetMyOrders";
+import useUpdateLocation from "./hooks/useUpdateLocation";
 
 
 export const serverUrl = import.meta.env.VITE_BACKEND_URL;
 
 function App() {
-  const loading = useGetCurrentUser();
+  const { userData } = useSelector((state) => state.user);
+  useGetCurrentUser();
+  useUpdateLocation();
   useGetCity();
   useGetMyShop();
   useGetShopByCity();
   useGetItemsByCity();
   useGetMyOrders();
-  const { userData } = useSelector((state) => state.user);
+  
 
-  if (loading) {
-    return (
-      <div className="w-screen min-h-screen flex justify-center items-center bg-[#fff9f6]">
-        <div className="flex flex-col items-center gap-3">
-          <h1 className="text-3xl font-bold text-[#ff4d2d]">Vingo</h1>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="w-screen min-h-screen flex justify-center items-center bg-[#fff9f6]">
+  //       <div className="flex flex-col items-center gap-3">
+  //         <h1 className="text-3xl font-bold text-[#ff4d2d]">Vingo</h1>
+  //         <p className="text-gray-600">Loading...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <Routes>
