@@ -1,6 +1,5 @@
 import Shop from "../models/shop.model.js";
 import Order from "../models/order.model.js";
-import UserActivation from "../models/userActivation.model.js"; 
 
 export const placeOrder = async (req, res) => {
   try {
