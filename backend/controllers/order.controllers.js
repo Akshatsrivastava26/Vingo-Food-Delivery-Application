@@ -241,6 +241,9 @@ const acceptOrder=async (req,res) => {
     if(!order){
       return res.status(400).json({message:"Order not found"});
     }
+    const shopOrder=order.shopOrders.find(so=>so._id.equals(assignment.shopOrderId));
+    shopOrder.assignedDeliveryBoy=req.userId;
+    await order.save();
   } catch (error) {
     return res.status(500).json({message:`accept order error ${error.message}`});
   }
