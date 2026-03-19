@@ -43,8 +43,8 @@ function OwnerOrderCard({data}) {
                 <p className='text-xs text-gray-500'>Qty: {item.quantity} x ₹{item.price} </p>
               </div>
             ))}
-        </div>
-        {/* status update option for owner */}
+      </div>
+      {/* status update option for owner */}
       <div className='flex justify-between items-center mt-auto pt-3 border-t border-gray-100'>
         <span className='text-sm'>status:<span className='font-semibold capitalize text-[#ff4d2d]'>{data.shopOrders.status}</span></span>
         <select className='rouned-md border px-3 py-1 text-sm focus:outline-none focus:ring-2 border-[#ff4d2d] text-[#ff4d2d]' onChange={(e)=>handleUpdateStatus(data._id,data.shopOrders.shop._id,e.target.value)}>
@@ -66,7 +66,7 @@ function OwnerOrderCard({data}) {
 
        </div>
       }
-        {/* Grant Total */}
+      {/* Grant Total */}
       <div className='text-right font-bold text-gray-800 text-sm'>
         Total: ₹{data.shopOrders.subTotal}
       </div>
