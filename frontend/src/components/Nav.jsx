@@ -11,11 +11,9 @@ import { FaPlus } from "react-icons/fa6";
 import { TbReceipt2 } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 
-
-
-
 function Nav() {
-  const { userData, currentCity = "" } = useSelector((state) => state.user) || {};
+  const { userData, currentCity = "" } =
+    useSelector((state) => state.user) || {};
   const user = userData?.user;
   const { myShopData } = useSelector((state) => state.owner) || {};
   const [showInfo, setShowInfo] = React.useState(false);
@@ -25,7 +23,7 @@ function Nav() {
 
   const handleLogOut = async () => {
     try {
-      await axios.get(`${serverUrl}/api/auth/signout`, {
+      await axios.post(`${serverUrl}/api/auth/signout`, {
         withCredentials: true,
       });
       dispatch(setUserData(null));
@@ -52,7 +50,9 @@ function Nav() {
         </div>
       )}
 
-      <h1 className="text-3xl font-bold m-2 text-[#ff4d2d] whitespace-nowrap">Vingo</h1>
+      <h1 className="text-3xl font-bold m-2 text-[#ff4d2d] whitespace-nowrap">
+        Vingo
+      </h1>
       {user?.role == "user" && (
         <div className="md:w-[60%] lg:w-[40%] h-[70px] bg-white shadow-xl rounded-lg items-center gap-5 hidden md:flex">
           <div className="flex items-center w-[30%] overflow-hidden gap-2.5 px-2.5 border-r-2 border-gray-400">
@@ -86,44 +86,56 @@ function Nav() {
             />
           ))}
 
-        {user?.role == "owner" ? <>
-        {myShopData && <>
-        <button className="hidden md:flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]" onClick={()=> navigate("/add-item")}>
-            <FaPlus size={20}/>
-            <span>Add Food Item</span>
-          </button>
-          
-          <button className="md:hidden flex items-center p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]" onClick={()=> navigate("/add-item")}>
-            <FaPlus size={20}/ >
-          </button>
-          </>}
-        
-          
-          <div className="hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium" >
-            <TbReceipt2 size={20}/>
-            <span>My Orders</span>
-            <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-1.5 py-px">0</span>
-          </div>
-          <div className="md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium" >
-            <TbReceipt2 size={20}/>
-            <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-1.5 py-px">0</span>
-          </div>
-        </>: (<>
-        <div className="relative cursor-pointer">
-            <FiShoppingCart size={25} className="text-[#ff4d2d]" />
-            <span className="absolute right-[-9px] -top-3 text-[#ff4d2d]">
-              0
-            </span>
-          </div>
-        
+        {user?.role == "owner" ? (
+          <>
+            {myShopData && (
+              <>
+                <button
+                  className="hidden md:flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]"
+                  onClick={() => navigate("/add-item")}
+                >
+                  <FaPlus size={20} />
+                  <span>Add Food Item</span>
+                </button>
 
-        <button className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium">
-          My Orders
-        </button>
-        
-        </>)}
+                <button
+                  className="md:hidden flex items-center p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]"
+                  onClick={() => navigate("/add-item")}
+                >
+                  <FaPlus size={20} />
+                </button>
+              </>
+            )}
 
-          
+            <div className="hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium">
+              <TbReceipt2 size={20} />
+              <span>My Orders</span>
+              <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-1.5 py-px">
+                0
+              </span>
+            </div>
+            <div className="md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium">
+              <TbReceipt2 size={20} />
+              <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-1.5 py-px">
+                0
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="relative cursor-pointer">
+              <FiShoppingCart size={25} className="text-[#ff4d2d]" />
+              <span className="absolute right-[-9px] -top-3 text-[#ff4d2d]">
+                0
+              </span>
+            </div>
+
+            <button className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium">
+              My Orders
+            </button>
+          </>
+        )}
+
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center bg-[#ff4d2d] text-white text-[18px] shadow-xl font-semibold cursor-pointer"
           onClick={() => setShowInfo((prev) => !prev)}
@@ -132,13 +144,13 @@ function Nav() {
         </div>
         {showInfo && (
           <div className="fixed top-20 right-2.5 md:right-[10%] lg:right-[25%] w-[180px] bg-white shadow-2xl rounded-xl p-5 flex flex-col gap-2.5 z-50">
-            <div className="text-[17px] font-semibold">
-              {user?.fullName}
-            </div>
-            {userData.role == "user" && <div className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer">
-              My Orders
-            </div>}
-            
+            <div className="text-[17px] font-semibold">{user?.fullName}</div>
+            {userData.role == "user" && (
+              <div className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer">
+                My Orders
+              </div>
+            )}
+
             <div
               className="text-[#ff4d2d] font-semibold cursor-pointer"
               onClick={handleLogOut}

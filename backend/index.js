@@ -12,9 +12,11 @@ import itemRouter from "./routes/itemroutes.js";
 import cors from "cors";
 const app = express();
 const port = process.env.PORT || 8000;
+
+const allowedOrigin = ["http://localhost:5173", "http://localhost:5174"];
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigin,
     credentials: true,
   }),
 );
