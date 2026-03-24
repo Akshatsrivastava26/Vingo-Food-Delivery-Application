@@ -21,8 +21,21 @@ const customerIcon = new L.Icon({
 function DeliveryBoyTracking({ data }) {
   const deliveryBoyLat = data?.deliveryBoyLocation?.lat;
   const deliveryBoyLon = data?.deliveryBoyLocation?.lon;
-  const customerLat = data?.deliveryAddress?.lat;
-  const customerLon = data?.deliveryAddress?.lon;
+  const customerLat = data?.deliveryAddress?.lat ?? data?.customerLocation?.lat;
+  const customerLon = data?.deliveryAddress?.lon ?? data?.customerLocation?.lon;
+
+  const hasDeliveryBoyCoords =
+    typeof deliveryBoyLat === "number" && typeof deliveryBoyLon === "number";
+  const hasCustomerCoords =
+    typeof customerLat === "number" && typeof customerLon === "number";
+
+  if (!hasDeliveryBoyCoords || !hasCustomerCoords) {
+    return (
+      <div className="w-full mt-3 rounded-xl border border-orange-100 bg-orange-50 p-4 text-sm text-gray-700">
+        Live tracking is not available yet.
+      </div>
+    );
+  }
 
   const path = [
     [deliveryBoyLat, deliveryBoyLon],
@@ -44,19 +57,18 @@ function DeliveryBoyTracking({ data }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {/* icone for delivery boy */}
-        <Marker position={[deliveryBoyLat, deliveryBoyLon]} icon={deliveryBoyIcon}>
-            <Popup>Delivery Boy</Popup>
-
+        <Marker
+          position={[deliveryBoyLat, deliveryBoyLon]}
+          icon={deliveryBoyIcon}
+        >
+          <Popup>Delivery Boy</Popup>
         </Marker>
         {/* icon for customer */}
         <Marker position={[customerLat, customerLon]} icon={customerIcon}>
-            <Popup>Delivery Boy</Popup>
-
+          <Popup>Delivery Boy</Popup>
         </Marker>
-        
+
         <Polyline positions={path} color="blue" weight={4} />
-
-
       </MapContainer>
     </div>
   );
