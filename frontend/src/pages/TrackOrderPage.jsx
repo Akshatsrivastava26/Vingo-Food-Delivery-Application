@@ -81,7 +81,7 @@ function TrackOrderPage() {
             <p className="text-green-600 font-semibold text-lg">Delivered</p>
           )}
           {/* Map will be shown here */}
-          {shopOrder.assignedDeliveryBoy && (
+          {(shopOrder.assignedDeliveryBoy && shopOrder.status!="delivered") &&
             <div className="h-[400px] w-full rounded-2xl overflow-hidden shadow-md">
               <DeliveryBoyTracking
                 data={{
@@ -96,7 +96,7 @@ function TrackOrderPage() {
                 }}
               />
             </div>
-          )}
+          }
         </div>
       ))}
     </div>

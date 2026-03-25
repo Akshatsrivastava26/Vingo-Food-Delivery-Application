@@ -12,6 +12,7 @@ function DeliveryBoy() {
   const [currentOrder, setCurrentOrder] = useState();
   const [showOtpBox, setShowOtpBox] = useState(false);
   const [availableAssignments, setAvailableAssignments] = useState(null);
+  const [otp, setOtp] = useState("");
 
   const getAssignments = async () => {
     try {
@@ -38,9 +39,6 @@ function DeliveryBoy() {
     }
   };
 
-  const handelSendOtp = () => {
-    setShowOtpBox(true);
-  };
 
   const acceptOrder = async (assignmentId) => {
     try {
@@ -52,6 +50,34 @@ function DeliveryBoy() {
       await getCurrentOrder();
     } catch (error) {
       console.log("ACCEPT ORDER ERROR:", error);
+    }
+  };
+
+  const sendOtp = async () => {
+    
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/order/send-delivery-otp`,{
+           orderId:currentOrder._id,shopOrderId:currentOrder.shopOrder._id },
+        { withCredentials: true },
+      );
+      setShowOtpBox(true);
+      console.log(result.data);
+    } catch (error) {
+      console.log("SEND OTP ERROR:", error);
+    }
+  };
+
+  const verifyOtp = async () => {
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/order/verify-delivery-otp`,
+        { orderId:currentOrder._id,shopOrderId:currentOrder.shopOrder._id, otp },
+        { withCredentials: true },
+      );
+      console.log(result.data);
+    } catch (error) {
+      console.log("VERIFY OTP ERROR:", error);
     }
   };
 
@@ -141,14 +167,14 @@ function DeliveryBoy() {
             {!showOtpBox ? (
               <button
                 className="mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200"
-                onClick={handelSendOtp}
+                onClick={sendOtp}
               >
                 Mark As Delivered
               </button>
             ) : (
               <div className="t-4 p-4 border rounded-xl bg-gray-50">
                 <p className="text-sm font-semibold mb-2">
-                  Enter OTP send to{" "}
+                  Enter OTP send to
                   <span className="text-orange-500">
                     {currentOrder?.user?.fullName}
                   </span>
@@ -157,8 +183,10 @@ function DeliveryBoy() {
                   type="text"
                   placeholder="Enter OTP"
                   className="w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  onChange={(e)=>setOtp(e.target.value)}
+                  value={otp}
                 />
-                <button className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all">
+                <button className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all" onClick={verifyOtp}>
                   Submit OTP
                 </button>
               </div>
