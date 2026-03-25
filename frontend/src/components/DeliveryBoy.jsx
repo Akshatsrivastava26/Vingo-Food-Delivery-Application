@@ -8,15 +8,17 @@ import DeliveryBoyTracking from "./DeliveryBoyTracking";
 
 function DeliveryBoy() {
   const { userData } = useSelector((state) => state.user);
+  const currentUser = userData?.user;
   const [currentOrder, setCurrentOrder] = useState();
   const [showOtpBox, setShowOtpBox] = useState(false);
   const [availableAssignments, setAvailableAssignments] = useState(null);
+
   const getAssignments = async () => {
     try {
-      const result = await axios.get(`${serverUrl}/api/order/get-assignments`, {
+      const result = await axios.get(`${serverUrl}/api/order/get-assignment`, {
         withCredentials: true,
       });
-      setAvailableAssignments(result.data);
+      setAvailableAssignments(result.data?.assignments || []);
     } catch (error) {
       console.log("GET ASSIGNMENT ERROR:", error);
     }
@@ -28,10 +30,11 @@ function DeliveryBoy() {
         `${serverUrl}/api/order/get-current-order`,
         { withCredentials: true },
       );
-      setCurrentOrder(result.data);
+      setCurrentOrder(result.data || null);
       console.log("GET CURRENT ORDER RESULT:", result.data);
     } catch (error) {
       console.log("GET CURRENT ORDER ERROR:", error);
+      setCurrentOrder(null);
     }
   };
 
@@ -53,24 +56,27 @@ function DeliveryBoy() {
   };
 
   useEffect(() => {
-    getAssignments();
-    getCurrentOrder();
-  }, [userData]);
+    if (!currentUser) return;
+
+    (async () => {
+      await getAssignments();
+      await getCurrentOrder();
+    })();
+  }, [currentUser]);
 
   return (
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-[#fff9f6] overflow-y-auto">
-      <Nav />
       {/* small devices mai full rahe aur large devices mai beach mai rahe */}
       <div className="w-full max-w-[800px] flex flex-col gap-5 items-center">
         <div className="bg-white rounded-2xl shadow-md p-5 flex flex-col justify-start items-center w-[90%] border border-orange-100 text-center gap-2">
           <h1 className="text-xl font-bold text-[#ff4d2d]">
-            Welcome, {userData?.fullName}!
+            Welcome, {currentUser?.fullName}!
           </h1>
           <p className="text-[#ff4d2d]">
             <span className="font-semibold">Latitude:</span>{" "}
-            {userData?.location.coordinates[1]},{" "}
+            {currentUser?.location?.coordinates?.[1] ?? "-"},{" "}
             <span className="font-semibold">Longitude:</span>{" "}
-            {userData?.location.coordinates[0]}
+            {currentUser?.location?.coordinates?.[0] ?? "-"}
           </p>
         </div>
 
@@ -95,7 +101,7 @@ function DeliveryBoy() {
                         {a?.deliveryAddress.text}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {a.items.length} items | ₹{a.subtotal}
+                        {a?.items?.length || 0} items | ₹{a?.subtotal || 0}
                       </p>
                     </div>
                     {/* button for delivery boy to accept the order */}
@@ -123,11 +129,11 @@ function DeliveryBoy() {
                 {currentOrder?.shopOrder.shop.name}
               </p>
               <p className="text-sm text-gray-500">
-                {currentOrder?.deliveryAddress}
+                {currentOrder?.deliveryAddress?.text}
               </p>
               <p className="text-xs text-gray-400 ">
-                {currentOrder.shopOrder.shopOrderItems.length} items | ₹
-                {currentOrder.shopOrder.subtotal}
+                {currentOrder?.shopOrder?.shopOrderItems?.length || 0} items | ₹
+                {currentOrder?.shopOrder?.subtotal || 0}
               </p>
             </div>
             {/* order tracking component */}
@@ -144,7 +150,7 @@ function DeliveryBoy() {
                 <p className="text-sm font-semibold mb-2">
                   Enter OTP send to{" "}
                   <span className="text-orange-500">
-                    {currentOrder.cuser.fullName}
+                    {currentOrder?.user?.fullName}
                   </span>
                 </p>
                 <input

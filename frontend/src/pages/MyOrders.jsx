@@ -15,12 +15,20 @@ function MyOrders() {
         {/* Heading Part */}
         <div className="flex items-center gap-5 mb-6">
           <div className="z-10 cursor-pointer" onClick={() => navigate("/")}>
-            <IoIosArrowRoundBack size={35} className="text-[#ff4d2d]" />
+            <IoIosArrowRoundBack
+              size={35}
+              className="text-[#ff4d2d] cursor-pointer"
+            />
           </div>
           <h1 className="text-2xl font-bold text-start">My Orders</h1>
         </div>
         {/* Orders will be shown here */}
         <div className="space-y-6">
+          {(!myOrders || myOrders.length === 0) && (
+            <div className="bg-white rounded-lg shadow p-5 text-gray-600">
+              No orders yet.
+            </div>
+          )}
           {myOrders?.map((order) =>
             userRole == "user" ? (
               <UserOrderCard data={order} key={order._id} />

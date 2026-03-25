@@ -19,7 +19,7 @@
 //     <div className='w-[100vw] min-h-[100vh] pt-[100px] flex flex-col items-center bg-[#fff9f6]'>
 //       {userData.role=="user" && <UserDashboard />}
 //       {userData.role=="owner" && <OwnerDashboard />}
-//       {userData.role=="deliveryboy" && <DeliveryBoy />} 
+//       {userData.role=="deliveryboy" && <DeliveryBoy />}
 //     </div>
 //   )
 // }
@@ -32,12 +32,7 @@ import DeliveryBoy from "../components/DeliveryBoy";
 import Nav from "../components/Nav";
 
 function Home() {
-  
-  const actualUser = useSelector(
-    (state) => state.user?.userData?.user
-  );
-
-  console.log("ACTUAL USER:", actualUser);
+  const actualUser = useSelector((state) => state.user?.userData?.user);
 
   if (!actualUser) {
     return (
@@ -53,15 +48,13 @@ function Home() {
       <div className="pt-20">
         {actualUser.role === "user" && <UserDashboard />}
         {actualUser.role === "owner" && <OwnerDashboard />}
-        {actualUser.role === "deliveryboy" && <DeliveryBoy />}
+        {actualUser.role === "deliveryBoy" && <DeliveryBoy />}
       </div>
     </div>
   );
 }
 
 export default Home;
-
-
 
 // function Home() {
 //   const { userData } = useSelector(state => state.user);

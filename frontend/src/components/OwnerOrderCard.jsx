@@ -12,6 +12,10 @@ function OwnerOrderCard({ data }) {
     data?.shopOrders?.status || "",
   );
   const dispatch = useDispatch();
+  const displayTotal = Math.max(
+    0,
+    Number(data?.shopOrders?.subtotal ?? data?.totalAmount ?? 0),
+  );
 
   const handleUpdateStatus = async (orderId, shopId, status) => {
     if (!status) {
@@ -111,20 +115,30 @@ function OwnerOrderCard({ data }) {
       {/* when status is out for delivery then show assigned delivery boy details and also show available delivery */}
       {data.shopOrders.status == "out for delivery" && (
         <div className="mt-3 p-2 border rounded-lg text-sm bg-orange-50">
-          {data.shopOrders.assignedDeliveryBoy ?<p>Assigned Delivery Boys:</p>:<p>Available Delivery Boys:</p>}
+          {data.shopOrders.assignedDeliveryBoy ? (
+            <p>Assigned Delivery Boy:</p>
+          ) : (
+            <p>Available Delivery Boys:</p>
+          )}
           {availableBoys.length > 0 ? (
-            availableBoys.map((b) => (
-              <div className="text-gray-300">
+            availableBoys.map((b, index) => (
+              <div className="text-gray-700" key={b?.id || index}>
                 {b.fullname}-{b.mobile}
               </div>
             ))
-          ) :data.shopOrders.assignedDeliveryBoy ?<div>{data.shopOrders.assignedDeliveryBoy.fullName}-{data.shopOrders.assignedDeliveryBoy.mobile}</div>:<div>Waiting for available delivery boys...</div>
-          }
+          ) : data.shopOrders.assignedDeliveryBoy ? (
+            <div className="text-gray-700">
+              {data.shopOrders.assignedDeliveryBoy.fullName}-
+              {data.shopOrders.assignedDeliveryBoy.mobile}
+            </div>
+          ) : (
+            <div>Waiting for available delivery boys...</div>
+          )}
         </div>
       )}
       {/* Grant Total */}
       <div className="text-right font-bold text-gray-800 text-sm">
-        Total: ₹{data?.shopOrders?.subtotal ?? data?.totalAmount ?? 0}
+        Total: ₹{displayTotal}
       </div>
     </div>
   );

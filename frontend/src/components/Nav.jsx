@@ -21,6 +21,18 @@ function Nav() {
   const [showSearch, setShowSearch] = React.useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const menuRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowInfo(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   const handleOpenMyOrders = () => {
     navigate("/my-orders");
@@ -153,7 +165,7 @@ function Nav() {
             </div>
 
             <button
-              className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium"
+              className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium cursor-pointer"
               onClick={handleOpenMyOrders}
             >
               My Orders
@@ -161,32 +173,34 @@ function Nav() {
           </>
         )}
 
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-[#ff4d2d] text-white text-[18px] shadow-xl font-semibold cursor-pointer"
-          onClick={() => setShowInfo((prev) => !prev)}
-        >
-          {user?.fullName ? user.fullName.slice(0, 1) : "?"}
-        </div>
-        {showInfo && (
-          <div className="fixed top-20 right-2.5 md:right-[10%] lg:right-[25%] w-[180px] bg-white shadow-2xl rounded-xl p-5 flex flex-col gap-2.5 z-50">
-            <div className="text-[17px] font-semibold">{user?.fullName}</div>
-            {user?.role == "user" && (
-              <div
-                className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer"
-                onClick={handleOpenMyOrders}
-              >
-                My Orders
-              </div>
-            )}
-
-            <div
-              className="text-[#ff4d2d] font-semibold cursor-pointer"
-              onClick={handleLogOut}
-            >
-              Log Out
-            </div>
+        <div ref={menuRef}>
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-[#ff4d2d] text-white text-[18px] shadow-xl font-semibold cursor-pointer"
+            onClick={() => setShowInfo((prev) => !prev)}
+          >
+            {user?.fullName ? user.fullName.slice(0, 1) : "?"}
           </div>
-        )}
+          {showInfo && (
+            <div className="fixed top-20 right-2.5 md:right-[10%] lg:right-[25%] w-[180px] bg-white shadow-2xl rounded-xl p-5 flex flex-col gap-2.5 z-50">
+              <div className="text-[17px] font-semibold">{user?.fullName}</div>
+              {(user?.role == "user" || user?.role == "owner") && (
+                <div
+                  className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer"
+                  onClick={handleOpenMyOrders}
+                >
+                  My Orders
+                </div>
+              )}
+
+              <div
+                className="text-[#ff4d2d] font-semibold cursor-pointer"
+                onClick={handleLogOut}
+              >
+                Log Out
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
