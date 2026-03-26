@@ -14,6 +14,7 @@ import CheckOut from "./pages/CheckOut";
 import OrderPlaced from "./pages/OrderPlaced";
 import MyOrders from "./pages/MyOrders";
 import TrackOrderPage from "./pages/TrackOrderPage";
+import Shop from "./pages/Shop";
 import Nav from "./components/Nav";
 
 import useGetCurrentUser from "./hooks/useGetCurrentUser";
@@ -97,7 +98,12 @@ function App() {
         path="/track-order/:orderId"
         element={userData ? <TrackOrderPage /> : <Navigate to="/signin" />}
       />
+      <Route
+        path="/shop/:shopId"
+        element={userData ? <Shop/> : <Navigate to="/signin" />}
+      />
     </Routes>
+
     
   );
 }

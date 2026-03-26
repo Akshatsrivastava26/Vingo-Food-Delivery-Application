@@ -7,6 +7,7 @@ import { editItem } from "../controllers/item.controllers.js";
 import { getItemById } from "../controllers/item.controllers.js";
 import { deleteItem } from "../controllers/item.controllers.js";
 import { getItemByCity } from "../controllers/item.controllers.js";
+import { getItemsByShop } from "../controllers/item.controllers.js";
 
 
 
@@ -17,6 +18,7 @@ itemRouter.post("/edit-item/:itemId",isAuth,upload.single("image"),editItem);
 itemRouter.get("/get-by-id/:itemId",isAuth,getItemById);
 itemRouter.delete("/delete-item/:itemId",isAuth,deleteItem);
 itemRouter.get("/get-by-city/:city",isAuth,getItemByCity);
+itemRouter.get("/get-by-shop/:shopId",isAuth,getItemsByShop);
 
 
 

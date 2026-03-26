@@ -7,6 +7,7 @@ import { FaChevronCircleRight } from "react-icons/fa";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import FoodCard from "./FoodCard";
+import { useNavigate } from "react-router-dom";
 
 
 function UserDashboard() {
@@ -16,6 +17,7 @@ function UserDashboard() {
   );
   const cateScrollRef = React.useRef();
   const shopScrollRef = React.useRef();
+  const navigate = useNavigate();
   const [showLeftCateButton, setShowLeftCateButton] = useState(false);
   const [showRightCateButton, setShowRightCateButton] = useState(false);
   const [showLeftShopButton, setShowLeftShopButton] = useState(false);
@@ -223,7 +225,7 @@ function UserDashboard() {
             ref={shopScrollRef}
           >
             {shopInMyCity?.map((shop, index) => (
-              <CategoryCard name={shop.name} image={shop.image} key={index} />
+              <CategoryCard name={shop.name} image={shop.image} key={index} onClick={() => navigate(`/shop/${shop._id}`)} />
             ))}
           </div>
           {showRightShopButton && (
