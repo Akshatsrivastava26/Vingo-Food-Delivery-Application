@@ -122,12 +122,15 @@ function CheckOut() {
         },
         { withCredentials: true },
       );
-
+      if(paymentMethod=="cod"){
       dispatch(addMyOrder(result.data?.order)); // Update Redux store with the new order
-
-      // alert("Order placed successfully ✅");
-
       navigate("/order-placed"); // optional redirect
+      } else{
+        const orderId=result.data?.orderId;
+        const razorOrder=result.data?.razorOrder;
+        openRazorpayWindow(orderId, razorOrder);
+
+      }
     } catch (error) {
       console.error("ORDER ERROR:", error.response?.data || error);
 
@@ -137,6 +140,34 @@ function CheckOut() {
       );
     }
   };
+
+  const openRazorpayWindow=(orderId, razorOrder)=>{
+    const options={
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: razorOrder.amount,
+      currency:'INR',
+      name: "Vingo Ltd.",
+      description: "Payment for order",
+      order_id: razorOrder.id,
+      handler: async function (response){
+        try {
+          const result= await axios.post(`${serverUrl}/api/order/verify-payment`,{
+            razorpay_payment_id: response.razorpay_payment_id,
+            orderId,
+          },{withCredentials:true});
+          dispatch(addMyOrder(result.data?.order)); // Update Redux store with the new order
+          navigate("/order-placed");
+          
+        } catch (error) {
+          console.error("Payment verification failed:", error.response?.data || error);
+          
+        }
+      },
+
+    }
+    const rzp = new window.Razorpay(options)
+      rzp.open();
+  }
 
   useEffect(() => {
     setAddressInput(address);
