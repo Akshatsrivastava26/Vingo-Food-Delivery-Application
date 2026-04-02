@@ -1,0 +1,11 @@
+# Firebase API Key
+VITE_FIREBASE_API_KEY="your_firebase_api_key"
+
+# Geo Location API Key
+VITE_GEO_API_KEY="your_geo_api_key"
+
+# Backend URL
+VITE_BACKEND_URL="http://localhost:8000"
+
+# Razorpay Key ID
+VITE_RAZORPAY_KEY_ID="your_razorpay_key_id"
