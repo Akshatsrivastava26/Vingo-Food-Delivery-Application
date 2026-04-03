@@ -124,20 +124,21 @@ export const placeOrder = async (req, res) => {
     const io = req.app.get("io");
 
     if (io) {
-      newOrder.shopOrders.forEach((shopOrder) => {});
-      const ownerSocketId = shopOrder.owner.ownerSocketId;
-      if (ownerSocketId) {
-        io.to(ownerSocketId).emit("newOrder", {
-          _id: newOrder._id,
-          paymentMethod: newOrder.paymentMethod,
-          user: newOrder.user,
-          shopOrders: shopOrder,
-          createdAt: newOrder.createdAt,
-          deliveryAddress: newOrder.deliveryAddress,
-          totalAmount: newOrder.totalAmount,
-          payment: newOrder.payment,
-        });
-      }
+      newOrder.shopOrders.forEach((shopOrder) => {
+        const ownerSocketId = shopOrder?.owner?.socketId;
+        if (ownerSocketId) {
+          io.to(ownerSocketId).emit("newOrder", {
+            _id: newOrder._id,
+            paymentMethod: newOrder.paymentMethod,
+            user: newOrder.user,
+            shopOrders: shopOrder,
+            createdAt: newOrder.createdAt,
+            deliveryAddress: newOrder.deliveryAddress,
+            totalAmount: newOrder.totalAmount,
+            payment: newOrder.payment,
+          });
+        }
+      });
     }
 
     return res
@@ -175,20 +176,21 @@ export const verifyPayment = async (req, res) => {
     const io = req.app.get("io");
 
     if (io) {
-      order.shopOrders.forEach((shopOrder) => {});
-      const ownerSocketId = shopOrder.owner.ownerSocketId;
-      if (ownerSocketId) {
-        io.to(ownerSocketId).emit("newOrder", {
-          _id: order._id,
-          paymentMethod: order.paymentMethod,
-          user: order.user,
-          shopOrders: shopOrder,
-          createdAt: order.createdAt,
-          deliveryAddress: order.deliveryAddress,
-          totalAmount: order.totalAmount,
-          payment: order.payment,
-        });
-      }
+      order.shopOrders.forEach((shopOrder) => {
+        const ownerSocketId = shopOrder?.owner?.socketId;
+        if (ownerSocketId) {
+          io.to(ownerSocketId).emit("newOrder", {
+            _id: order._id,
+            paymentMethod: order.paymentMethod,
+            user: order.user,
+            shopOrders: shopOrder,
+            createdAt: order.createdAt,
+            deliveryAddress: order.deliveryAddress,
+            totalAmount: order.totalAmount,
+            payment: order.payment,
+          });
+        }
+      });
     }
     return res
       .status(200)
@@ -328,7 +330,7 @@ export const updateOrderStatus = async (req, res) => {
         mobile: b.mobile,
       }));
 
-      await deliveryAssignment.populate("order")
+      await deliveryAssignment.populate("order");
       await deliveryAssignment.populate("shop");
 
       const io = req.app.get("io");
@@ -342,8 +344,13 @@ export const updateOrderStatus = async (req, res) => {
               orderId: deliveryAssignment.order._id,
               shopName: deliveryAssignment.shop.name,
               deliveryAddress: deliveryAssignment.order.deliveryAddress,
-              items: deliveryAssignment.order.shopOrders.find((so) => so._id.equals(deliveryAssignment.shopOrderId))?.shopOrderItems || [],
-              subtotal: deliveryAssignment.order.shopOrders.find((so) =>so._id.equals(deliveryAssignment.shopOrderId))?.subtotal,
+              items:
+                deliveryAssignment.order.shopOrders.find((so) =>
+                  so._id.equals(deliveryAssignment.shopOrderId),
+                )?.shopOrderItems || [],
+              subtotal: deliveryAssignment.order.shopOrders.find((so) =>
+                so._id.equals(deliveryAssignment.shopOrderId),
+              )?.subtotal,
             });
           }
         });
@@ -605,45 +612,47 @@ export const verifyDeliveryOtp = async (req, res) => {
   }
 };
 
-export const getTodayDeliveries=async(req,res)=>{
+export const getTodayDeliveries = async (req, res) => {
   try {
-    const deliveryBoyId=req.userId;
-    const startsOfDay=new Date();
-    startsOfDay.setHours(0,0,0,0);
-    const orders=await Order.find({
-      "shopOrders.assignedDeliveryBoy":deliveryBoyId,
-      "shopOrders.status":"delivered",
-      "shopOrders.deliveredAt":{$gte:startsOfDay}
-    }).lean()
-    let todaysDeliveries=[]
+    const deliveryBoyId = req.userId;
+    const startsOfDay = new Date();
+    startsOfDay.setHours(0, 0, 0, 0);
+    const orders = await Order.find({
+      "shopOrders.assignedDeliveryBoy": deliveryBoyId,
+      "shopOrders.status": "delivered",
+      "shopOrders.deliveredAt": { $gte: startsOfDay },
+    }).lean();
+    let todaysDeliveries = [];
 
-    orders.forEach(order=>{
-      order.shopOrders.forEach(shopOrder=>{
-        if(shopOrder.assignedDeliveryBoy==deliveryBoyId &&
-           shopOrder.status=="delivered" && 
-           shopOrder.deliveredAt>=startsOfDay
-          ){
-            todaysDeliveries.push(shopOrder)
-          } 
-      })
-    })
+    orders.forEach((order) => {
+      order.shopOrders.forEach((shopOrder) => {
+        if (
+          shopOrder.assignedDeliveryBoy == deliveryBoyId &&
+          shopOrder.status == "delivered" &&
+          shopOrder.deliveredAt >= startsOfDay
+        ) {
+          todaysDeliveries.push(shopOrder);
+        }
+      });
+    });
 
-    let stats={}
-    todaysDeliveries.forEach(shopOrder=>{
-      const hour=new Date(shopOrder.deliveredAt).getHours()
-      stats[hour]=(stats[hour] || 0)+1
-    })
+    let stats = {};
+    todaysDeliveries.forEach((shopOrder) => {
+      const hour = new Date(shopOrder.deliveredAt).getHours();
+      stats[hour] = (stats[hour] || 0) + 1;
+    });
 
-    let formatedStats=Object.keys(stats).map(hour=>({ 
-      hour: parseInt(hour), 
+    let formatedStats = Object.keys(stats).map((hour) => ({
+      hour: parseInt(hour),
       count: stats[hour],
-    }))
+    }));
 
-    formatedStats.sort((a,b)=>a.hour-b.hour)
+    formatedStats.sort((a, b) => a.hour - b.hour);
 
-    return res.status(200).json({todaysDeliveries,stats:formatedStats})
-
+    return res.status(200).json({ todaysDeliveries, stats: formatedStats });
   } catch (error) {
-    return res.status(500).json({ message: `get today's deliveries error ${error.message}` });
+    return res
+      .status(500)
+      .json({ message: `get today's deliveries error ${error.message}` });
   }
-}
+};

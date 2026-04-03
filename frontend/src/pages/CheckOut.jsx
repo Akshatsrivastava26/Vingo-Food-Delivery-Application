@@ -21,15 +21,27 @@ import { addMyOrder } from "../redux/userSlice";
 
 function RecenterMap({ location }) {
   const map = useMap();
-  if (location?.lat && location?.lon) {
-    map.setView([location.lat, location.lon], 16, { animate: true });
-  }
+
+  useEffect(() => {
+    const hasValidLocation =
+      typeof location?.lat === "number" && typeof location?.lon === "number";
+
+    if (hasValidLocation) {
+      map.setView([location.lat, location.lon], 16, { animate: true });
+    }
+  }, [location, map]);
+
   return null;
 }
 
 function CheckOut() {
   const { location, address } = useSelector((state) => state.map);
-  const { cartItems, totalAmount, userData } = useSelector((state) => state.user);
+  const { cartItems, totalAmount, userData } = useSelector(
+    (state) => state.user,
+  );
+  const currentUser = userData?.user || userData;
+  const backendLat = currentUser?.location?.coordinates?.[1];
+  const backendLon = currentUser?.location?.coordinates?.[0];
   const hasValidLocation =
     typeof location?.lat === "number" && typeof location?.lon === "number";
   const mapCenter = hasValidLocation
@@ -66,11 +78,13 @@ function CheckOut() {
     }
   };
   const getCurrentLocation = () => {
-    const latitude = userData.location.coordinates[1]  
-    const longitude = userData.location.coordinates[0]
-    dispatch(setLocation({ lat: latitude, lon: longitude }))
-    getAddressByLatLng(latitude, longitude)
-    
+    if (typeof backendLat !== "number" || typeof backendLon !== "number") {
+      alert("Current location is not available yet");
+      return;
+    }
+
+    dispatch(setLocation({ lat: backendLat, lon: backendLon }));
+    getAddressByLatLng(backendLat, backendLon);
   };
   const getLatLngByAddress = async () => {
     try {
@@ -122,14 +136,13 @@ function CheckOut() {
         },
         { withCredentials: true },
       );
-      if(paymentMethod=="cod"){
-      dispatch(addMyOrder(result.data?.order)); // Update Redux store with the new order
-      navigate("/order-placed"); // optional redirect
-      } else{
-        const orderId=result.data?.orderId;
-        const razorOrder=result.data?.razorOrder;
+      if (paymentMethod == "cod") {
+        dispatch(addMyOrder(result.data?.order)); // Update Redux store with the new order
+        navigate("/order-placed"); // optional redirect
+      } else {
+        const orderId = result.data?.orderId;
+        const razorOrder = result.data?.razorOrder;
         openRazorpayWindow(orderId, razorOrder);
-
       }
     } catch (error) {
       console.error("ORDER ERROR:", error.response?.data || error);
@@ -141,37 +154,52 @@ function CheckOut() {
     }
   };
 
-  const openRazorpayWindow=(orderId, razorOrder)=>{
-    const options={
+  const openRazorpayWindow = (orderId, razorOrder) => {
+    const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: razorOrder.amount,
-      currency:'INR',
+      currency: "INR",
       name: "Vingo Ltd.",
       description: "Payment for order",
       order_id: razorOrder.id,
-      handler: async function (response){
+      handler: async function (response) {
         try {
-          const result= await axios.post(`${serverUrl}/api/order/verify-payment`,{
-            razorpay_payment_id: response.razorpay_payment_id,
-            orderId,
-          },{withCredentials:true});
+          const result = await axios.post(
+            `${serverUrl}/api/order/verify-payment`,
+            {
+              razorpay_payment_id: response.razorpay_payment_id,
+              orderId,
+            },
+            { withCredentials: true },
+          );
           dispatch(addMyOrder(result.data?.order)); // Update Redux store with the new order
           navigate("/order-placed");
-          
         } catch (error) {
-          console.error("Payment verification failed:", error.response?.data || error);
-          
+          console.error(
+            "Payment verification failed:",
+            error.response?.data || error,
+          );
         }
       },
-
-    }
-    const rzp = new window.Razorpay(options)
-      rzp.open();
-  }
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   useEffect(() => {
     setAddressInput(address);
   }, [address]);
+
+  useEffect(() => {
+    if (
+      !hasValidLocation &&
+      typeof backendLat === "number" &&
+      typeof backendLon === "number"
+    ) {
+      dispatch(setLocation({ lat: backendLat, lon: backendLon }));
+      getAddressByLatLng(backendLat, backendLon);
+    }
+  }, [hasValidLocation, backendLat, backendLon, dispatch]);
 
   return (
     <div className="min-h-screen bg-[#fff9f6] flex item-center justify-center p-6">
