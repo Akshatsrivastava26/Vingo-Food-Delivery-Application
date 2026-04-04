@@ -13,7 +13,11 @@ import shopRouter from "./routes/shoproutes.js";
 import itemRouter from "./routes/itemroutes.js";
 import orderRouter from "./routes/orderroutes.js";
 import http from "http";
-const allowedOrigin = ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigin = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 import cors from "cors";
 import { Server } from "socket.io";
@@ -56,12 +60,48 @@ const authLimiter = rateLimit({
 
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigin.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy:
+      NODE_ENV === "production"
+        ? {
+            directives: {
+              defaultSrc: ["'self'"],
+              scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://checkout.razorpay.com",
+                "https://apis.google.com",
+                "https://securetoken.googleapis.com",
+              ],
+              connectSrc: [
+                "'self'",
+                "https://api.geoapify.com",
+                "https://securetoken.googleapis.com",
+                "https://identitytoolkit.googleapis.com",
+                "https://*.googleapis.com",
+                "wss:",
+                "ws:",
+              ],
+              imgSrc: ["'self'", "data:", "blob:", "https:"],
+              styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+              fontSrc: ["'self'", "data:", "https:"],
+              frameSrc: ["'self'", "https://checkout.razorpay.com"],
+            },
+          }
+        : false,
+  }),
+);
 app.use(compression());
 app.use(globalLimiter);
 

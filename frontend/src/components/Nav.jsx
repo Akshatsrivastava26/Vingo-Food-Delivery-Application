@@ -59,23 +59,25 @@ function Nav() {
     }
   };
 
-  const handleSearchItems=async () =>{
-      try {
-        const result=await axios.get(`${serverUrl}/api/item/search-items?query=${query}&city=${currentCity}`, {withCredentials:true})
-        dispatch(setSearchItems(result.data))
-      } catch (error) {
-        logger.error("Search failed", error)
-        
-      }
+  const handleSearchItems = async () => {
+    try {
+      const result = await axios.get(
+        `${serverUrl}/api/item/search-items?query=${query}&city=${currentCity}`,
+        { withCredentials: true },
+      );
+      dispatch(setSearchItems(result.data));
+    } catch (error) {
+      logger.error("Search failed", error);
     }
+  };
 
-  useEffect(()=>{
-    if(query){
-      handleSearchItems()
-    } else{
-       dispatch(setSearchItems(null))
+  useEffect(() => {
+    if (query) {
+      handleSearchItems();
+    } else {
+      dispatch(setSearchItems(null));
     }
-  }, [query])
+  }, [query]);
 
   return (
     <div className="w-full h-20 flex items-center justify-between md:justify-center gap-8 px-5 fixed top-0 z-50 bg-[#fff9f6] overflow-visible">
@@ -91,7 +93,8 @@ function Nav() {
               type="text"
               placeholder="search delicious food..."
               className="px-2.5 text-gray-700 outline-0 w-full"
-              onChange={(e)=>setQuery(e.target.value)} value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              value={query}
             />
           </div>
         </div>
@@ -113,7 +116,8 @@ function Nav() {
               type="text"
               placeholder="search delicious food..."
               className="px-2.5 text-gray-700 outline-0 w-full"
-              onChange={(e)=>setQuery(e.target.value)} value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              value={query}
             />
           </div>
         </div>
@@ -177,7 +181,7 @@ function Nav() {
               </span>
             </div>
           </>
-        ) : (
+        ) : user?.role == "user" ? (
           <>
             <div className="relative cursor-pointer">
               <FiShoppingCart
@@ -197,7 +201,7 @@ function Nav() {
               My Orders
             </button>
           </>
-        )}
+        ) : null}
 
         <div ref={menuRef}>
           <div

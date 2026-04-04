@@ -48,8 +48,15 @@ function OwnerOrderCard({ data }) {
         <p className="flex items-center gap-2 text-sm text-gray-600 mt-1">
           <MdPhone /> <span> {data?.user?.mobileNumber}</span>
         </p>
-        {data.paymentMethod =="online" ? <p className="gap-2 text-sm text-gray-600">payment: {data.payment?"Paid":"Not Paid"}</p> :<p className="gap-2 text-sm text-gray-600">Payment Method: {data?.paymentMethod}</p>}
-        
+        {data.paymentMethod == "online" ? (
+          <p className="gap-2 text-sm text-gray-600">
+            payment: {data.payment ? "Paid" : "Not Paid"}
+          </p>
+        ) : (
+          <p className="gap-2 text-sm text-gray-600">
+            Payment Method: {data?.paymentMethod}
+          </p>
+        )}
       </div>
       {/* delivery address of user */}
       <div className="flex items-start flex-col gap-2 text-gray-600 text-sm">
@@ -66,12 +73,20 @@ function OwnerOrderCard({ data }) {
             key={index}
             className="shrink-0 w-40 border rounded-lg p-2 bg-white"
           >
-            <img
-              src={item.item.image}
-              alt={item.name}
-              className="w-full h-24 object-cover rounded"
-            />
-            <p className="text-sm font-semibold mt-1">{item.name}</p>
+            {item?.item?.image ? (
+              <img
+                src={item.item.image}
+                alt={item.name}
+                className="w-full h-24 object-cover rounded"
+              />
+            ) : (
+              <div className="w-full h-24 rounded bg-gray-100 flex items-center justify-center text-xs text-gray-500">
+                Image not available
+              </div>
+            )}
+            <p className="text-sm font-semibold mt-1">
+              {item?.name || item?.item?.name || "Item"}
+            </p>
             <p className="text-xs text-gray-500">
               Qty: {item.quantity} x ₹{item.price}{" "}
             </p>
