@@ -14,6 +14,9 @@ import {
 } from "recharts";
 import { ClipLoader } from "react-spinners";
 import { logger } from "../utils/logger";
+import BrandButton from "./ui/BrandButton";
+import { FaMotorcycle, FaRupeeSign } from "react-icons/fa";
+import { MdOutlineAssignmentTurnedIn } from "react-icons/md";
 
 function DeliveryBoy() {
   const { userData, socket } = useSelector((state) => state.user);
@@ -34,6 +37,9 @@ function DeliveryBoy() {
     (sum, d) => sum + d.count * ratePerDelivery,
     0,
   );
+  const currentHourDeliveries =
+    todayDeliveriesStats?.[todayDeliveriesStats.length - 1]?.count || 0;
+  const firstName = currentUser?.fullName?.split(" ")?.[0] || "Partner";
 
   const getAssignments = async () => {
     try {
@@ -202,99 +208,128 @@ function DeliveryBoy() {
   }, [currentUser?._id]);
 
   return (
-    <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-[#fff9f6] overflow-y-auto">
-      <div className="w-full max-w-[800px] flex flex-col gap-5 items-center">
-        <div className="bg-white rounded-2xl shadow-md p-5 flex flex-col justify-start items-center w-[90%] border border-orange-100 text-center gap-2">
-          <h1 className="text-xl font-bold text-[#ff4d2d]">
-            Welcome, {currentUser?.fullName}!
-          </h1>
-          <p className="text-[#ff4d2d]">
-            <span className="font-semibold">Latitude:</span>{" "}
-            {deliveryBoyLocation?.lat ?? "-"},{" "}
-            <span className="font-semibold">Longitude:</span>{" "}
-            {deliveryBoyLocation?.lon ?? "-"}
-          </p>
-        </div>
+    <div className="w-full min-h-[calc(100vh-9rem)] animate-app-fade px-4 sm:px-6 lg:px-10 py-4 sm:py-6">
+      <div className="max-w-5xl mx-auto flex flex-col gap-5">
+        <section className="section-card p-5 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="soft-badge mb-2">
+                <FaMotorcycle /> Delivery Console
+              </p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold brand-gradient-text">
+                Welcome, {firstName}
+              </h1>
+              <p className="text-(--text-muted) mt-1">
+                Stay live, accept assignments quickly, and close deliveries with
+                OTP.
+              </p>
+            </div>
+            <div className="rounded-lg border border-(--border-soft) bg-(--bg-subtle) px-4 py-3 text-sm text-(--text-secondary)">
+              <p>
+                <span className="font-semibold">Lat:</span>{" "}
+                {typeof deliveryBoyLocation?.lat === "number"
+                  ? deliveryBoyLocation.lat.toFixed(6)
+                  : "-"}
+              </p>
+              <p>
+                <span className="font-semibold">Lon:</span>{" "}
+                {typeof deliveryBoyLocation?.lon === "number"
+                  ? deliveryBoyLocation.lon.toFixed(6)
+                  : "-"}
+              </p>
+            </div>
+          </div>
+        </section>
 
-        <div className="bg-white rounded-2xl shadow-md p-5 w-[90%] mb-6 border border-orange-100">
-          <h1 className="text-lg font-bold mb-3 text-[#ff4d2d]">
-            Today's Deliveries
-          </h1>
-
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={todayDeliveriesStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="hour" tickFormatter={(h) => `${h}:00`} />
-              <YAxis allowDataOverflow={false} />
-              <Tooltip
-                formatter={(value) => [value, "orders"]}
-                labelFormatter={(label) => `${label}:00`}
-              />
-              <Bar dataKey="count" fill="#ff4d2d" />
-            </BarChart>
-          </ResponsiveContainer>
-
-          <div className="max-w-sm mx-auto mt-6 p-6 bg-white rounded-2xl shadow-lg text-center">
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">
-              Today's Earnings:
-            </h1>
-            <span className="text-3xl font-bold text-green-600">
-              ₹{totalEarnings}
+        <section className="section-card p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h2 className="text-xl font-bold text-(--text-primary)">
+              Today's Deliveries
+            </h2>
+            <span className="soft-badge">
+              <MdOutlineAssignmentTurnedIn /> Last slot: {currentHourDeliveries}
             </span>
           </div>
-        </div>
+
+          <div className="rounded-lg border border-(--border-soft) bg-(--bg-elevated) px-2 py-3">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={todayDeliveriesStats}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f2d6cb" />
+                <XAxis dataKey="hour" tickFormatter={(h) => `${h}:00`} />
+                <YAxis allowDataOverflow={false} />
+                <Tooltip
+                  formatter={(value) => [value, "orders"]}
+                  labelFormatter={(label) => `${label}:00`}
+                />
+                <Bar dataKey="count" fill="#ff2d55" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="mt-5 max-w-sm rounded-lg border border-(--border-soft) bg-(--bg-subtle) p-5 text-center mx-auto">
+            <p className="text-sm text-(--text-muted) mb-1">Today's Earnings</p>
+            <p className="text-3xl font-extrabold text-emerald-600 inline-flex items-center gap-1">
+              <FaRupeeSign className="text-emerald-600" /> {totalEarnings}
+            </p>
+          </div>
+        </section>
 
         {!currentOrder && (
-          <div className="bg-white rounded-2xl p-5 shadow-md w-[90%] border border-orange-100">
-            <h1 className="text-lg font-bold mb-4 flex items-center gap-2">
-              📦Available Orders
-            </h1>
+          <section className="section-card p-5 sm:p-6">
+            <h2 className="text-xl font-bold mb-4 text-(--text-primary)">
+              Available Orders
+            </h2>
             {assignmentMessage && (
-              <p className="text-sm text-[#ff4d2d] mb-3">{assignmentMessage}</p>
+              <p className="text-sm text-(--brand-2) mb-3">
+                {assignmentMessage}
+              </p>
             )}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {availableAssignments?.length > 0 ? (
                 availableAssignments.map((a, index) => (
                   <div
-                    className="border rounded-lg p-4 flex justify-between items-center"
+                    className="border border-(--border-soft) rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-(--bg-elevated)"
                     key={a?.assignmentId || index}
                   >
                     <div>
-                      <p className="text-sm font-semibold">{a?.shopName}</p>
-                      <p className="text-sm text-gray-500">
-                        <span className="font-semibold">Delivery Address:</span>{" "}
-                        {a?.deliveryAddress?.text}
+                      <p className="text-sm font-semibold text-(--text-primary)">
+                        {a?.shopName || "Shop"}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-sm text-(--text-muted)">
+                        <span className="font-semibold">Delivery Address:</span>{" "}
+                        {a?.deliveryAddress?.text || "No address"}
+                      </p>
+                      <p className="text-xs text-(--text-subtle)">
                         {a?.items?.length || 0} items | ₹{a?.subtotal || 0}
                       </p>
                     </div>
-                    <button
-                      className="bg-orange-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-orange-600 cursor-pointer"
-                      onClick={() => acceptOrder(a.assignmentId)}
-                    >
+                    <BrandButton onClick={() => acceptOrder(a.assignmentId)}>
                       Accept
-                    </button>
+                    </BrandButton>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-400 text-sm">No available orders.</p>
+                <p className="text-(--text-subtle) text-sm">
+                  No available orders.
+                </p>
               )}
             </div>
-          </div>
+          </section>
         )}
 
         {currentOrder && (
-          <div className="bg-white rounded-2xl p-5 shadow-md w-[90%] border border-orange-100">
-            <h2 className="text-lg font-bold mb-3">📦Current Order</h2>
-            <div className="border rounded-lg p-4 mb-3">
-              <p className="font-semibold text-sm">
-                {currentOrder?.shopOrder?.shop?.name}
+          <section className="section-card p-5 sm:p-6">
+            <h2 className="text-xl font-bold mb-3 text-(--text-primary)">
+              Current Order
+            </h2>
+            <div className="border border-(--border-soft) rounded-lg p-4 mb-3 bg-(--bg-elevated)">
+              <p className="font-semibold text-sm text-(--text-primary)">
+                {currentOrder?.shopOrder?.shop?.name || "Shop"}
               </p>
-              <p className="text-sm text-gray-500">
-                {currentOrder?.deliveryAddress?.text}
+              <p className="text-sm text-(--text-muted)">
+                {currentOrder?.deliveryAddress?.text || "Address unavailable"}
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-(--text-subtle)">
                 {currentOrder?.shopOrder?.shopOrderItems?.length || 0} items | ₹
                 {currentOrder?.shopOrder?.subtotal || 0}
               </p>
@@ -312,8 +347,8 @@ function DeliveryBoy() {
             />
 
             {!showOtpBox ? (
-              <button
-                className="mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200"
+              <BrandButton
+                className="mt-4 w-full py-3 text-base"
                 onClick={sendOtp}
                 disabled={loading}
               >
@@ -322,36 +357,33 @@ function DeliveryBoy() {
                 ) : (
                   "Mark As Delivered"
                 )}
-              </button>
+              </BrandButton>
             ) : (
-              <div className="t-4 p-4 border rounded-xl bg-gray-50">
-                <p className="text-sm font-semibold mb-2">
+              <div className="mt-4 p-4 border border-(--border-soft) rounded-lg bg-(--bg-subtle)">
+                <p className="text-sm font-semibold mb-2 text-(--text-secondary)">
                   Enter OTP sent to{" "}
-                  <span className="text-orange-500">
-                    {currentOrder?.user?.fullName}
+                  <span className="text-(--brand-2)">
+                    {currentOrder?.user?.fullName || "customer"}
                   </span>
                 </p>
                 <input
                   type="text"
                   placeholder="Enter OTP"
-                  className="w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full border border-(--border-soft) px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-(--brand-2)/30 bg-white"
                   onChange={(e) => setOtp(e.target.value)}
                   value={otp}
                 />
                 {message && (
-                  <p className="text-center text-green-500 text-sm mb-4">
+                  <p className="text-center text-sm mb-4 text-(--brand-2)">
                     {message}
                   </p>
                 )}
-                <button
-                  className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all"
-                  onClick={verifyOtp}
-                >
+                <BrandButton className="w-full" onClick={verifyOtp}>
                   Submit OTP
-                </button>
+                </BrandButton>
               </div>
             )}
-          </div>
+          </section>
         )}
       </div>
     </div>
