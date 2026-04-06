@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import connectDb from "./config/db.js";
 import path from "path";
+import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import compression from "compression";
@@ -27,6 +28,8 @@ const app = express();
 const port = process.env.PORT || 8000;
 const server = http.createServer(app);
 const NODE_ENV = process.env.NODE_ENV;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const io = new Server(server, {
   cors: {
@@ -81,11 +84,13 @@ app.use(
                 "'self'",
                 "'unsafe-inline'",
                 "https://checkout.razorpay.com",
+                "https://cdn.razorpay.com",
                 "https://apis.google.com",
                 "https://securetoken.googleapis.com",
               ],
               connectSrc: [
                 "'self'",
+                "https://api.razorpay.com",
                 "https://api.geoapify.com",
                 "https://securetoken.googleapis.com",
                 "https://identitytoolkit.googleapis.com",
@@ -96,7 +101,11 @@ app.use(
               imgSrc: ["'self'", "data:", "blob:", "https:"],
               styleSrc: ["'self'", "'unsafe-inline'", "https:"],
               fontSrc: ["'self'", "data:", "https:"],
-              frameSrc: ["'self'", "https://checkout.razorpay.com"],
+              frameSrc: [
+                "'self'",
+                "https://checkout.razorpay.com",
+                "https://api.razorpay.com",
+              ],
             },
           }
         : false,
@@ -104,8 +113,6 @@ app.use(
 );
 app.use(compression());
 app.use(globalLimiter);
-
-const __dirname = path.resolve();
 
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
@@ -119,11 +126,16 @@ app.use("/api/order", orderRouter);
 socketHandler(io);
 // make our app ready for deployment
 if (NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  const frontendDistPath = path.join(__dirname, "../frontend/dist");
+  app.use(express.static(frontendDistPath));
 
   // Serve SPA index for non-API routes.
   app.get(/^\/(?!api).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    // If a file extension is present, this is likely an asset request.
+    if (path.extname(req.path)) {
+      return res.status(404).end();
+    }
+    res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
 

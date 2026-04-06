@@ -72,7 +72,16 @@ export const editItem = async (req, res) => {
     if (!item) {
       return res.status(400).json({ message: "Item not found" });
     }
-    return res.status(200).json(item);
+
+    // Keep response shape consistent with add/delete so frontend store stays valid.
+    const updatedShop = await Shop.findById(ownerShop._id)
+      .populate("owner")
+      .populate({
+        path: "items",
+        options: { sort: { updatedAt: -1 } },
+      });
+
+    return res.status(200).json(updatedShop);
   } catch (error) {
     return res.status(500).json({ message: `Edit item error ${error}` });
   }
