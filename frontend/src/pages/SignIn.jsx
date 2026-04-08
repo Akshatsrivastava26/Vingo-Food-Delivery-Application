@@ -33,12 +33,7 @@ function SignIn() {
       setError("Please enter a valid email address");
       return;
     }
-    if (!isStrongPassword(password)) {
-      setError(
-        "Password must be 8+ characters with uppercase, lowercase, and a number",
-      );
-      return;
-    }
+  
 
     setError("");
     setLoading(true);
